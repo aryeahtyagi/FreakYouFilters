@@ -98,7 +98,6 @@ FreakYouFilters converts JSON into a chain of **JPA Specifications**.
 
 ## 📝 Roadmap (Upcoming Features)
 
-- [ ] Add support for filtering fields from **related entities / joined tables**.  
 - [ ] Add support for **pagination & sorting**.  
 - [ ] Optimize query performance & memory usage for **large datasets**.  
 - [ ] Support for aggregate filters (e.g., `students with courses > 10`).  
