@@ -1,19 +1,49 @@
 plugins {
     id 'java'
-    id 'maven-publish'
+    id 'signing'
     id 'org.springframework.boot' version '3.5.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id "com.vanniktech.maven.publish" version "0.34.0"
 }
 
-group = 'org.atria'
-version = '1.0.0'
+group = "io.github.aryeahtyagi"
+version = "1.0.0"
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+signing {
+    useGpgCmd()
+}
+
+mavenPublishing {
+    coordinates(group.toString(), name.toString(), version.toString())
+
+    pom {
+        name = "FreakYouFilters"
+        description = "FreakYouFilters is a lightweight Java library built for Spring Data JPA Specifications that allows developers to easily apply dynamic filters on database queries using JSON input."
+        inceptionYear = "2025"
+        url = "https://github.com/aryeahtyagi/FreakYouFilters/"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "aryeahtyagi"
+                name = "Arya Tyagi"
+                url = "https://github.com/aryeahtyagi/"
+            }
+        }
+        scm {
+            url = "https://github.com/aryeahtyagi/FreakYouFilters/"
+            connection = "scm:git:git://github.com/aryeahtyagi/FreakYouFilters.git"
+            developerConnection = "scm:git:ssh://git@github.com/aryeahtyagi/FreakYouFilters.git"
         }
     }
+
+    publishToMavenCentral()
+    signAllPublications()
 }
 
 repositories {
