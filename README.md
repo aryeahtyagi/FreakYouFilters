@@ -16,7 +16,7 @@ This is especially useful for search and filtering functionalities in web applic
 
 ---
 
-## 📦 Installation ( Not Yet published to maven . Please co-operate 😘)
+## 📦 Installation
 
 Add the following dependency to your **Gradle** project:
 
