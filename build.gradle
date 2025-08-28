@@ -48,6 +48,7 @@ mavenPublishing {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {

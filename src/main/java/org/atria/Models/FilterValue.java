@@ -5,14 +5,24 @@ public class FilterValue {
     public String value;
     public String operator;
     public String field;
+    public String matchCase ;
 
     public FilterValue() {
     }
 
-    public FilterValue(String value, String operator, String field) {
+    public FilterValue(String value, String operator, String field, String matchCase) {
         this.value = value;
         this.operator = operator;
         this.field = field;
+        this.matchCase = matchCase;
+    }
+
+    public String getMatchCase() {
+        return matchCase;
+    }
+
+    public void setMatchCase(String matchCase) {
+        this.matchCase = matchCase;
     }
 
     public String getValue() {

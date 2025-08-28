@@ -6,8 +6,8 @@ import org.atria.Models.FilterValue;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 public class SpecificationBuilder<T> {
 
@@ -35,7 +35,7 @@ public class SpecificationBuilder<T> {
         return (Path<Y>) path;
     }
 
-    public Specification<T> build(FilterObject filterObject) {
+    public Specification<T> build(FilterObject filterObject,boolean caseSensitive) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList();
 
@@ -43,11 +43,38 @@ public class SpecificationBuilder<T> {
                 String value = filter.getValue();
                 String operator = filter.getOperator();
                 String field = filter.getField();
+                String matchCase  = filter.getMatchCase();
                 Path<String> path = this.<String>getPath(root, field);
+
+                Expression<?> expression = path;
+                // If case-insensitive, normalize both sides
+                if (path.getJavaType().equals(String.class)){
+                    if(matchCase == null){
+                        if(!caseSensitive){
+                            expression = criteriaBuilder.lower(path);
+                            value = value.toLowerCase();
+                        }
+                    }
+                    else if(matchCase.toLowerCase(Locale.ROOT).equals("no")
+                        || matchCase.toLowerCase(Locale.ROOT).equals("false")
+                    ) {
+                        expression = criteriaBuilder.lower(path);
+                        value = value.toLowerCase();
+                    }
+                    else if (matchCase.toLowerCase(Locale.ROOT).equals("yes")
+                            || matchCase.toLowerCase(Locale.ROOT).equals("true"))
+                    {
+
+                    }
+                    else{
+                        throw new UnsupportedOperationException("matchCase value not supported: " + matchCase);
+                    }
+                }
+
                 switch (operator.toLowerCase()) {
                     case "eq":
                     case "=":
-                        predicates.add(criteriaBuilder.equal(path, value));
+                        predicates.add(criteriaBuilder.equal(expression, value));
                         break;
                     case ">":
                         predicates.add(criteriaBuilder.greaterThan(path, value));
@@ -56,7 +83,10 @@ public class SpecificationBuilder<T> {
                         predicates.add(criteriaBuilder.lessThan(path, value));
                         break;
                     case "like":
-                        predicates.add(criteriaBuilder.like(path, "%" + value + "%"));
+                        if (!path.getJavaType().equals(String.class)) {
+                            throw new UnsupportedOperationException("LIKE operator only works on String fields");
+                        }
+                        predicates.add(criteriaBuilder.like((Expression<String>) expression, "%" + value + "%"));
                         break;
                     case "!=":
                         predicates.add(criteriaBuilder.notEqual(path, value));
@@ -68,4 +98,9 @@ public class SpecificationBuilder<T> {
             return criteriaBuilder.and((Predicate[])predicates.toArray(new Predicate[0]));
         };
     }
+    public Specification<T> build(FilterObject filterObject) {
+        return build(filterObject,false);
+    }
+
+
 }

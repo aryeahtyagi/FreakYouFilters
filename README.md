@@ -6,13 +6,26 @@ This is especially useful for search and filtering functionalities in web applic
 
 ---
 
+## 🆕 What’s New (v1.1.0)
+
+- **Case Sensitivity Support** 🎉  
+  - Control case sensitivity globally when building queries:  
+    ```java
+    Specification<Student> specification = EasyFilters.generateQuery(json, false); // false = case-insensitive
+    ```
+  - Override per filter with `"matchCase": "true/false"` in JSON.  
+  - Accepts values: `true`, `false`, `yes`, `no` (default = `false`).  
+
+---
+
 ## 🚀 Features
 
-- Convert JSON-based filters into **Spring JPA Specifications**.
-- Supports multiple filters with operators (`=`, `>`, `<`, `>=`, `<=`, `LIKE`, etc.).
-- Supports **nested/complex queries** using dot-notation (e.g., `student.course.author.name`).
-- Easy integration with existing Spring Data Repositories.
-- Minimal setup – just add the dependency and start using!
+- Convert JSON-based filters into **Spring JPA Specifications**.  
+- Supports multiple filters with operators (`=`, `>`, `<`, `LIKE`).  
+- Supports **nested/complex queries** using dot-notation (e.g., `student.course.author.name`).  
+- Supports **case-sensitive and case-insensitive filtering** (global or per filter).  
+- Easy integration with existing Spring Data Repositories.  
+- Minimal setup – just add the dependency and start using!  
 
 ---
 
@@ -21,7 +34,7 @@ This is especially useful for search and filtering functionalities in web applic
 Add the following dependency to your **Gradle** project:
 
 ```gradle
-implementation 'io.github.aryeahtyagi:FreakYouFilters:1.0.0'
+implementation 'io.github.aryeahtyagi:FreakYouFilters:1.1.0'
 ```
 
 For **Maven**:
@@ -30,7 +43,7 @@ For **Maven**:
 <dependency>
     <groupId>io.github.aryeahtyagi</groupId>
     <artifactId>FreakYouFilters</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -48,14 +61,15 @@ For **Maven**:
       "field": "age"
     },
     {
-      "value": "60000",
+      "value": "10000",
       "operator": ">",
       "field": "familyIncome"
     },
     {
-      "value": "Jk rowling",
-      "operator": "=",
-      "field": "course.author.name"
+      "value": "trucks",
+      "operator": "like",
+      "field": "courses.name",
+      "matchCase": "false"   // optional; true/false or yes/no. Default: false
     }
   ]
 }
@@ -70,29 +84,48 @@ public interface StudentRepository extends JpaRepository<Student, Integer>, JpaS
 ```
 
 #### Step 2: Use FreakYouFilters in your Controller
+
 ```java
 @PostMapping("/students/filter")
 public List<Student> filterStudents(@RequestBody String json) {
-    Specification<Student> specification = EasyFilters.generateQuery(json);
+    // Case sensitivity controlled globally here (default = false)
+    Specification<Student> specification = EasyFilters.generateQuery(json, false);
     return studentRepository.findAll(specification);
 }
 ```
 
 ---
 
+## 📊 Supported Operators
+
+| Operator | JSON Example | Description | Case Sensitivity |
+|----------|-------------|-------------|------------------|
+| `=` / `eq` | `"operator": "=", "value": "John"` | Exact match | Case-sensitive if enabled |
+| `>` | `"operator": ">", "value": "18"` | Greater than (numbers/dates) | N/A |
+| `<` | `"operator": "<", "value": "1000"` | Less than (numbers/dates) | N/A |
+| `like` | `"operator": "like", "value": "row"` | Pattern search (`%value%`) | Case-sensitive if enabled |
+
+👉 For string-based operators (`=`, `like`), **case-insensitivity** is achieved by normalizing both DB field and input value.  
+
+---
+
 ## ✅ Requirements
 
 1. Add **Spring Data JPA** dependency.  
-2. Your repository must extend `JpaSpecificationExecutor<Entity>`.
+2. Your repository must extend `JpaSpecificationExecutor<Entity>`.  
 
 ---
 
 ## 📊 How It Works
 
 FreakYouFilters converts JSON into a chain of **JPA Specifications**.  
+
 - Each filter is parsed into a **Predicate** (criteria).  
 - Multiple filters are combined using `AND`.  
 - Supports **nested entity traversal** via dot-notation.  
+- Case sensitivity:  
+  - **Global** → `EasyFilters.generateQuery(json, true/false)`  
+  - **Per-filter** → `"matchCase": "true/false"`  
 
 ---
 
@@ -101,14 +134,14 @@ FreakYouFilters converts JSON into a chain of **JPA Specifications**.
 - [ ] Add support for **pagination & sorting**.  
 - [ ] Optimize query performance & memory usage for **large datasets**.  
 - [ ] Support for aggregate filters (e.g., `students with courses > 10`).  
-- [ ] Case-insensitive string comparisons.  
+- [ ] Add more operators: `>=`, `<=`, `!=`.  
 
 ---
 
 ## 📚 Resources
 
 - [Spring Data JPA Specifications](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#specifications)  
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)  
 
 ---
 
@@ -120,4 +153,4 @@ Contributions are welcome! Feel free to open issues or create pull requests.
 
 ## 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License.  

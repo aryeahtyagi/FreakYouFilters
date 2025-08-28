@@ -13,4 +13,11 @@ public class EasyFilters {
         return specificationBuilder.build(filterObject);
     }
 
+    public static <T> Specification<T> generateQuery(String json,boolean caseSensitive){
+        FilterObject filterObject = JsonParsingConfig.getClass(json, FilterObject.class);
+        SpecificationBuilder<T> specificationBuilder = new SpecificationBuilder<>();
+        return specificationBuilder.build(filterObject,caseSensitive);
+    }
+
+
 }
